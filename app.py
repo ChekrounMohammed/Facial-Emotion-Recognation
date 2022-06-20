@@ -9,7 +9,7 @@ import cvlib as cv
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase,RTCConfiguration ,WebRtcMode
 import av
 import threading 
-
+from hummingbird.ml import convert
 
 
 if __name__ == '__main__':
@@ -37,15 +37,21 @@ if __name__ == '__main__':
         if file is not None:
 
             image = Image.open(file)
-            image = image.save("img.jpg")
-            image = cv2.imread("img.jpg")
+            try:
+                image = image.save("img.jpg")
+                image = cv2.imread("img.jpg")
+            except:
+                image = image.save("img.png")
+                image = cv2.imread("img.png")               
             img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             labels = {0 : "Neutral",1 : "Happy",2 : "Sad",3 : "Surprise",4 : "anger",5 : "fear",6 : "disgust"}
             img = cv2.resize(img, (512, 512))
             #img = np.stack(img, axis=0)
             img = np.repeat(img[..., np.newaxis], 3, -1)
             img = img.reshape((512,512,3))
-            model = load_model('modelfin.h5')
+            model_cnn = load_model('modelfin.h5')
+            model = convert(model_cnn, 'pytorch')
+            model.to('cuda')
             #img = cv2.imread(image_path)
             #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             face, confidence = cv.detect_face(img)
