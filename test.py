@@ -1,16 +1,16 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import cvlib as cv
 
-state = {0 : "Neutral",1 : "Happy",2 : "Sad",3 : "Surprise",4 : "anger",5 : "fear",6 : "disgust"}
 
 from tensorflow import keras
 model = keras.models.load_model('modelfin.h5')
 
+state = {0 : "Neutral",1 : "Happy",2 : "Sad",3 : "Surprise",4 : "anger",5 : "fear",6 : "disgust"}
 
 
-
-path = "haarcascade_frontalface_default.xml"
+#path = "haarcascade_frontalface_default.xml"
 font_scale = 1.5
 font = cv2.FONT_HERSHEY_PLAIN
 
@@ -34,37 +34,36 @@ if not cap.isOpened():
 if not cap.isOpened():
     raise IOError('Cannot open camera')
 
-face_roi = np.zeros((500,500))
+#face_roi = np.zeros((500,500))
 while True:
     ret, frame = cap.read()
-    faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = faceCascade.detectMultiScale(gray, 1.1, 4)
-    for x,y,w,h in faces:
-        roi_gray = gray[y:y+h, x:x+w]
-        roi_color = frame[y:y+h, x:x+w]
-        cv2.rectangle(frame, (x,y), (x+w, y+h), (255,0,0))
-        facess = faceCascade.detectMultiScale(roi_gray)
-        if len(facess) == 0:
-            print("Face not detected")
-        else:
-            for (ex,ey, ew,eh) in facess:
-                face_roi = roi_gray[ey: ey+eh, ex:ex+ew]
-                
-    final_img = cv2.resize(face_roi, (48,48))
-    final_img = np.expand_dims(final_img, axis = 0)
-    final_img = final_img /255.
-    
-    
-    prediction = model.predict(final_img.reshape((1,48,48,1)))
-    status = state[prediction[0]]
-    x1,y1,w1,h1 = 0,0,175,75
-    cv2.rectangle(frame, (x1,y1), (x1+w1, y1+h1), (0,0,0), -1)
-    cv2.putText(frame, status, (x1+int(w1/10), y1+ int(h1/2)), font, 0.7, (0,0,255), 2)
-    cv2.putText(frame, status, (100,150), font, 3, (0,0,255), 2, cv2.LINE_4)
-    #cv2.rectangle(frame, (x,y), (x+w, y+h), (0,0,255))
-    
-    
+    #faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces, confidence = cv.detect_face(frame)
+    if faces :
+        for f in faces:
+            (startX, startY)=f[0], f[1]
+            (endX, endY)= f[2], f[3]
+            cv2.rectangle(frame, (startX,startY), (endX,endY), (0,255,0), 2)
+            
+            face_crop = np.copy(img[startY:endY,startX:endX])
+            try :
+                face_crop = cv2.resize(face_crop, (48,48))
+                face_crop = np.array(face_crop)
+                #face_crop = face_crop[0:48,0:48,2:]
+                face_crop = np.expand_dims(face_crop, 0)
+                cf = model.predict(face_crop)
+            
+                score = np.argmax(cf)
+                label = state[score]
+                idx = 100 * np.max(cf)
+                label = label +" pr:"+ str(int(idx))+"%"
+                Y = startY - 10 if startY - 10 > 10 else startY + 10
+                cv2.putText(frame, label, (startX, Y),  cv2.FONT_HERSHEY_SIMPLEX,
+                        0.7, (0, 255, 0), 2)
+            except:
+                print('empty*****')   
+        
     cv2.imshow('face Emotion Reco', frame)
     
     key = cv2.waitKey(20)

@@ -9,7 +9,7 @@ import cvlib as cv
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase,RTCConfiguration ,WebRtcMode
 import av
 import threading 
-from hummingbird.ml import convert
+
 
 
 if __name__ == '__main__':
@@ -49,9 +49,7 @@ if __name__ == '__main__':
             #img = np.stack(img, axis=0)
             img = np.repeat(img[..., np.newaxis], 3, -1)
             img = img.reshape((512,512,3))
-            model_cnn = load_model('modelfin.h5')
-            model = convert(model_cnn, 'pytorch')
-            model.to('cuda')
+            model = load_model('modelfin.h5')
             #img = cv2.imread(image_path)
             #img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             face, confidence = cv.detect_face(img)
