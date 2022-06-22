@@ -1,3 +1,4 @@
+from re import L
 import tkinter as tk
 from tkinter import *
 from PIL import Image
@@ -8,11 +9,17 @@ import cv2
 import cvlib as cv
 from tkinter import filedialog
 from tensorflow.keras.models import load_model
+<<<<<<< HEAD
 model = load_model('modelfin.h5')
 ups=0
 md=0
 
 
+=======
+ups=0
+md=0
+lab=None
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
 def Emotion():
     global filepath
     global panelD
@@ -51,9 +58,24 @@ def Emotion():
     temp = cv2.cvtColor(temp,cv2.COLOR_BGR2RGB)   
     img =Image.fromarray(temp)
     photo = ImageTk.PhotoImage(img)   
+<<<<<<< HEAD
     lab.configure(image=photo,pady=10)
     lab.image = photo
     #panelD.add(lab)
+=======
+    if md==0:
+        panelD.remove(lab)
+        lab = Label(panelD,image=photo,pady=10)    
+        lab.image = photo   
+        panelD.add(lab)
+        md=md+1
+    #lab.place(x=300,y=100)
+    else :
+        #panelD.remove(lab)
+        lab.configure(image=photo,pady=10)
+        lab.image = photo
+        #panelD.add(lab)
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
 
 
 
@@ -62,30 +84,45 @@ def UploadAction():
     global panelD
     global ups
     global lab
+<<<<<<< HEAD
     global exit
     global btngn
     exit = True
+=======
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
     filepath = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
     print('Selected:', filepath)
     monimage = Image.open(filepath)
     monimage = monimage.resize((500, 500), Image.LANCZOS)
     photo = ImageTk.PhotoImage(monimage)   ## Création d'une image compatible Tkinter
     if ups==0 :
+<<<<<<< HEAD
         
         btngn = Button(panelD, text ="get emotion" ,width=20 ,height=5, bg='#567', fg='White' ,command=Emotion)
         btngn.pack(side=LEFT)
         #panelD.add(btngn)
         lab.configure(image=photo,pady=10)
         lab.image = photo
+=======
+        btngn = Button(panelD, text ="get emotion" ,width=10 ,height=3, bg='#567', fg='White' ,command=Emotion)
+        panelD.add(btngn)
+        lab = Label(panelD,image=photo,pady=10)    
+        lab.image = photo   
+        panelD.add(lab)
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
         #lab.place(x=300,y=100)
         
         ups=ups+1
     else :
+<<<<<<< HEAD
         
+=======
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
         #panelD.remove(lab)
         lab.configure(image=photo,pady=10)
         lab.image = photo
         #panelD.add(lab)
+<<<<<<< HEAD
 labv=None
 cap =None
 def realtime():
@@ -148,6 +185,10 @@ def video_stream():
         lab.after(1,video_stream)
     #panelD.add(lab)
        
+=======
+
+    
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
 
 
 
@@ -174,7 +215,11 @@ panelB.add(panelC)
 button1 = tk.Button(panelC, text='Upload an image',bg='#567', fg='White',width=20 ,height=3, command=UploadAction)
 button1.pack()
 
+<<<<<<< HEAD
 button2 = tk.Button(panelC, text='Video stream',bg='#567', width=20 ,height=3,fg='White',command= realtime )
+=======
+button2 = tk.Button(panelC, text='Video stream',bg='#567', width=20 ,height=3,fg='White' )
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
 button2.pack()
 
 panelC.add(button1)
@@ -182,12 +227,15 @@ panelC.add(button2)
 
 panelD = PanedWindow(panelB,orient=HORIZONTAL,bd=4)
 panelB.add(panelD)
+<<<<<<< HEAD
 
 btngn =Button()
 panelD.add(btngn)
 lab =Label(panelD)
 lab.pack(side=RIGHT)
 panelD.add(lab)
+=======
+>>>>>>> e7751ddadbe6654a1b3266c1dabaaa97139e5e4e
 
 root.mainloop()
 
