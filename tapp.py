@@ -1,3 +1,4 @@
+from re import L
 import tkinter as tk
 from tkinter import *
 from PIL import Image
@@ -8,10 +9,14 @@ import cv2
 import cvlib as cv
 from tkinter import filedialog
 from tensorflow.keras.models import load_model
-
+ups=0
+md=0
+lab=None
 def Emotion():
     global filepath
-    global panelA
+    global panelD
+    global md
+    global lab
     #global window
     labels = {0 : "Neutral",1 : "Happy",2 : "Sad",3 : "Surprise",4 : "anger",5 : "fear",6 : "disgust"}
     model = load_model("modelfin.h5")
@@ -42,47 +47,52 @@ def Emotion():
         label = label +" pr:"+ str(int(idx))+"%"
         Y = startY - 10 if startY - 10 > 10 else startY + 10
         cv2.putText(temp, label, (startX, Y),  cv2.FONT_HERSHEY_SIMPLEX,0.7, (0, 255, 0), 2)
+    temp = cv2.cvtColor(temp,cv2.COLOR_BGR2RGB)   
     img =Image.fromarray(temp)
     photo = ImageTk.PhotoImage(img)   
-    if panelA is None:
-        panelA = Label(image=photo)    
-        panelA.image = photo            
-        panelA.pack(side="center", padx=10,pady=10)
+    if md==0:
+        panelD.remove(lab)
+        lab = Label(panelD,image=photo,pady=10)    
+        lab.image = photo   
+        panelD.add(lab)
+        md=md+1
+    #lab.place(x=300,y=100)
     else :
-        panelA.configure(image=photo)
-        panelA.image = photo	
+        #panelD.remove(lab)
+        lab.configure(image=photo,pady=10)
+        lab.image = photo
+        #panelD.add(lab)
 
 
 
 def UploadAction(event=None):
     global filepath
-    global panelA
-
+    global panelD
+    global ups
+    global lab
     filepath = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
     print('Selected:', filepath)
     monimage = Image.open(filepath)
     monimage = monimage.resize((500, 500), Image.LANCZOS)
     photo = ImageTk.PhotoImage(monimage)   ## Création d'une image compatible Tkinter
-    if panelA is None:
-        panelA = Label(image=photo,pady=10)    
-        panelA.image = photo   
-
-        panelA.place(x=300,y=100)
+    if ups==0 :
+        btngn = Button(panelD, text ="get emotion" ,width=10 ,height=3, bg='#567', fg='White' ,command=Emotion)
+        panelD.add(btngn)
+        lab = Label(panelD,image=photo,pady=10)    
+        lab.image = photo   
+        panelD.add(lab)
+        #lab.place(x=300,y=100)
+        
+        ups=ups+1
     else :
-        panelA.configure(image=photo,pady=10)
-        panelA.image = photo
-        panelA.place(x=300,y=100)	
+        #panelD.remove(lab)
+        lab.configure(image=photo,pady=10)
+        lab.image = photo
+        #panelD.add(lab)
 
-    btngn = Button(root, text ="get emotion" ,width=10 , bg='#567', fg='White' ,command=Emotion)
-    btngn.place(x=550, y=50)
+    
 
-def resize_image(event):
-    new_width = event.width
-    new_height = event.height
-    image = copy_of_image.resize((new_width, new_height))
-    photo = ImageTk.PhotoImage(image)
-    label.config(image = photo)
-    label.image = photo #avoid garbage collection
+
 
 filepath = None
 
@@ -91,17 +101,31 @@ filepath = None
 root = tk.Tk()
 root.geometry("1000x800")
 panelA = None
-button = tk.Button(root, text='Upload an image',bg='#567', fg='White' , command=UploadAction)
-button.pack()
+
+panelA = PanedWindow(bd=4,relief='raised')
+panelA.pack(fill=BOTH, expand=1)
 
 
+panelB =PanedWindow(panelA,orient=VERTICAL,bd=4)
 
-img = Image.open("backgroundd.jpg")
-copy_of_image = img.copy()
-photo = ImageTk.PhotoImage(img)
-label = Label(root, image = photo)
-label.bind('<Configure>', resize_image)
-label.pack(fill=BOTH , expand = YES)
+panelA.add(panelB)
+
+panelC =PanedWindow(panelB,orient=HORIZONTAL,bd=4)
+panelB.add(panelC)
+
+
+button1 = tk.Button(panelC, text='Upload an image',bg='#567', fg='White',width=20 ,height=3, command=UploadAction)
+button1.pack()
+
+button2 = tk.Button(panelC, text='Video stream',bg='#567', width=20 ,height=3,fg='White' )
+button2.pack()
+
+panelC.add(button1)
+panelC.add(button2)
+
+panelD = PanedWindow(panelB,orient=HORIZONTAL,bd=4)
+panelB.add(panelD)
+
 root.mainloop()
 
 
