@@ -1,1 +1,1 @@
-"# Facial-Emotion-detection-" 
+Facial Emotion detection repo
